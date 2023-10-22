@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form class="form-inline my-2 my-lg-0">
+        <input autofocus class="form-control mr-sm-2" name="queryset" type="search" placeholder="Search" aria-label="Search" style="margin-top: 25px !important;" onkeyup="getFoodsList(this.value)">
+{#        <button class="btn btn-outline-success my-2 my-sm-0" type="submit" style="margin-top: 25px !important;">Search</button>#}
+    </form>
+    <div>
+        <table class="table">
+          <thead class="table-light">
+            <tr>
+                <th style="width: 3%">#</th>
+                <th>Name</th>
+                <th style="width: 5%">Quantity</th>
+                <th style="width: 5%">Amount</th>
+                <th style="width: 5%">Calories</th>
+                <th style="width: 5%">Fat</th>
+                <th style="width: 5%">Protein</th>
+                <th style="width: 5%">Carbs</th>
+                <th style="width: 5%">Fiber</th>
+                <th style="width: 5%">Sugar</th>
+                <th style="width: 5%"></th>
+            </tr>
+          </thead>
+          <tbody id="search_results">
+          </tbody>
+        </table>
+    </div>
+
+    <div>
+        <table class="table" style="visibility: hidden" id="myTable">
+          <thead class="table-light">
+            <tr>
+                <th colspan="11">Selected foods</th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th style="width: 5%">Quantity</th>
+                <th style="width: 5%">Amount</th>
+                <th style="width: 5%">Calories</th>
+                <th style="width: 5%">Fat</th>
+                <th style="width: 5%">Protein</th>
+                <th style="width: 5%">Carbs</th>
+                <th style="width: 5%">Fiber</th>
+                <th style="width: 5%">Sugar</th>
+                <th style="width: 5%"></th>
+            </tr>
+          </thead>
+          <tbody id="selected_results">
+          </tbody>
+        </table>
+    </div>
+
+    <script>
+        var data;
+        function getFoodsList(txt) {
+            if (txt.length == 0)
+                document.getElementById('search_results').innerHTML = "";
+            else {
+                URL = "/foods/getFoodsList/" + txt + "/";
+                const xhttp = new XMLHttpRequest();
+                xhttp.onload = function () {
+                    data = JSON.parse(this.responseText)
+                    var tblBody = ""
+                    for (var i = 0; i < data.length; i++)
+                        tblBody += "<tr>" +
+                            "<th>" + String(i + 1) + "</th>" +
+                            "<td>" + data[i]['product_name'] + "</td>" +
+                            "<td><input type='number' id='input_" + i + "' value='1' style='width: 100%' min='1'></td>" +
+                            "<td>" + data[i]['product_amount'] + " " + data[i]['product_measure'] + "</td>" +
+                            "<td>" + data[i]['product_calory'] + "</td>" +
+                            "<td>" + data[i]['product_fat'] + "</td>" +
+                            "<td>" + data[i]['product_protein'] + "</td>" +
+                            "<td>" + data[i]['product_carbs'] + "</td>" +
+                            "<td>" + data[i]['product_fiber'] + "</td>" +
+                            "<td>" + data[i]['product_sugar'] + "</td>" +
+                            "<td><button onclick='addFoods2List(" + i + ")'>Add</button></td>" +
+                            "</tr>";
+                    document.getElementById('search_results').innerHTML = tblBody;
+                }
+                xhttp.open("GET", URL);
+                xhttp.send();
+            }
+        }
+
+        function addFoods2List(indeks) {
+            document.getElementById('myTable').style.visibility = 'visible';
+
+            tblBody = "<tr ondblclick='document.getElementById(\"myTable\").deleteRow(this.rowIndex)'>" +
+                    "<td>" + data[indeks]['product_name'] + "</td>" +
+                    "<td>" + String(document.getElementById("input_" + indeks).value) + "</td>" +
+                    "<td>" + data[indeks]['product_amount'] + " " + data[indeks]['product_measure'] + "</td>" +
+                    "<td>" + data[indeks]['product_calory'] + "</td>" +
+                    "<td>" + data[indeks]['product_fat'] + "</td>" +
+                    "<td>" + data[indeks]['product_protein'] + "</td>" +
+                    "<td>" + data[indeks]['product_carbs'] + "</td>" +
+                    "<td>" + data[indeks]['product_fiber'] + "</td>" +
+                    "<td>" + data[indeks]['product_sugar'] + "</td>" +
+                    "<td><button >Remove</button></td>"
+                    "</tr>";
+            document.getElementById('selected_results').innerHTML += tblBody;
+        }
+    </script>
+{% endblock %}
